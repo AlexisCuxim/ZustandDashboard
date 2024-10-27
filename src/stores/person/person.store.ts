@@ -1,5 +1,5 @@
 import { StateCreator, create } from "zustand";
-import { persist } from "zustand/middleware";
+import { devtools, persist } from "zustand/middleware";
 // import { customSessionStorage } from "../storages/session.storage";
 import { firebaseStorage } from "../storages/firebase.storage";
 
@@ -13,23 +13,25 @@ interface Actions {
   setLastName: (value: string) => void;
 }
 
-const storeApi: StateCreator<PersonState & Actions> = (set) => ({
+const storeApi: StateCreator<PersonState & Actions, [["zustand/devtools", never]]> = (set) => ({
   firstName: '',
   lastName: '',
-  setFirstName: (value: string) => set((store) => ({ firstName: value })),
-  setLastName: (value: string) => set((store) => ({ lastName: value })),
+  setFirstName: (value: string) => set(({ firstName: value }), false, 'setFirstName'),
+  setLastName: (value: string) => set(({ lastName: value }), false, 'setLastName'),
 });
 
 // Persist funciona como middleware y recibe dos argumentos el primero
 // es el objeto Store y un objeto con el nombre que se guardara en el 
 // localStorage
 export const usePersonStore = create<PersonState & Actions>()(
-  persist(
-    storeApi,
-    {
-      name: 'personStorage',
-      // storage: customSessionStorage,
-      storage: firebaseStorage,
-    }
+  devtools(
+    persist(
+      storeApi,
+      {
+        name: 'personStorage',
+        // storage: customSessionStorage,
+        storage: firebaseStorage,
+      }
+    )
   )
 );
