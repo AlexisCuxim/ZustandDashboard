@@ -1,3 +1,4 @@
+import { useShallow } from 'zustand/shallow';
 import { WhiteCard } from '../../components';
 import { useBearStore } from '../../stores';
 
@@ -12,6 +13,7 @@ export const BearPage = () => {
         <BlackBears />
         <PolarBears />
         <PandaBears />
+        <BearsDisplay />
       </div>
 
     </>
@@ -67,4 +69,24 @@ const PandaBears = () => {
       </div>
     </WhiteCard>
   )
-}
+};
+
+// La función useShallow() comprueba si hay un cambio en el state 
+// en el caso de que haya un cambio renderiza el componente y en  
+// caso de que no omite el renderizado. Es util en caso de que 
+// tenga un useEffect() que interfiera, entre otros casos.
+const BearsDisplay = () => {
+  const bears = useBearStore(useShallow((state) => state.bears));
+  const doNothing = useBearStore((state) => state.doNothing);
+
+  return (
+    <WhiteCard>
+      <h1>Osos</h1>
+      <button onClick={doNothing}>Do nothing</button>
+
+      <pre>
+        {JSON.stringify(bears, null, 2)}
+      </pre>
+    </WhiteCard>
+  )
+};
