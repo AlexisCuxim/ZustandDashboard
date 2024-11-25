@@ -3,7 +3,7 @@ import type { Task, TaskStatus } from "../../interfaces";
 import { devtools } from "zustand/middleware";
 
 interface TaskState {
-  draggingTaskId: string;
+  draggingTaskId?: string;
   tasks: Record<string, Task>;
   getTaskByStatus: (status: TaskStatus) => Task[];
 
