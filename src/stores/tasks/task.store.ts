@@ -2,6 +2,7 @@ import { StateCreator, create } from "zustand";
 import type { Task, TaskStatus } from "../../interfaces";
 import { devtools } from "zustand/middleware";
 import { v4 as uuidv4 } from "uuid";
+import { produce } from "immer";
 
 interface TaskState {
   draggingTaskId?: string;
@@ -31,12 +32,16 @@ const storeApi: StateCreator<TaskState> = (set, get) => ({
   addTask: (title: string, status: TaskStatus) => {
     const newTask = { id: uuidv4(), title, status };
 
-    set(state => ({
-      tasks: {
-        ...state.tasks,
-        [newTask.id]: newTask,
-      },
-    }));
+    set(produce((state: TaskState) => {
+      state.tasks[newTask.id] = newTask;
+    }))
+
+    // set(state => ({
+    //   tasks: {
+    //     ...state.tasks,
+    //     [newTask.id]: newTask,
+    //   },
+    // }));
   },
   setDraggingTaskId: (taskId: string) => {
     set({ draggingTaskId: taskId });
