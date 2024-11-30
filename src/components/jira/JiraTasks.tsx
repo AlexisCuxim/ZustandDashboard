@@ -1,5 +1,6 @@
 import { DragEvent, useState } from 'react';
-import { IoCheckmarkCircleOutline, IoEllipsisHorizontalOutline, IoReorderTwoOutline } from 'react-icons/io5';
+import { IoCheckmarkCircleOutline, IoAdd } from 'react-icons/io5';
+import Swal from "sweetalert2";
 import classNames from 'classnames';
 import { Task, TaskStatus } from '../../interfaces';
 import { SingleTask } from './SingleTask';
@@ -8,18 +9,35 @@ import { useTaskStore } from '../../stores';
 interface Props {
   title: string;
   tasks: Task[];
-  value: TaskStatus;
+  status: TaskStatus;
 }
 
 
-export const JiraTasks = ({ title, value, tasks }: Props) => {
+export const JiraTasks = ({ title, status, tasks }: Props) => {
   const isDragging = useTaskStore((state) => !!state.draggingTaskId);
   const onTaskDrop = useTaskStore((state) => state.onTaskDrop);
   const addTask = useTaskStore((state) => state.addTask);
   const [onDragOver, setOnDragOver] = useState(false);
 
-  const handleAddTask = () => {
-    addTask('New task', value);
+  const handleAddTask = async () => {
+    const { isConfirmed, value } = await Swal.fire({
+      title: 'Nueva tarea',
+      input: 'text',
+      inputLabel: 'Nombre de la tarea',
+      inputPlaceholder: 'Ingrese el nombre de la tarea',
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return "Debe de ingresar un nombre para la tarea";
+        }
+      },
+    });
+
+    console.log(isConfirmed, value);
+
+    if (!isConfirmed) return;
+
+    addTask(value, status);
   };
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
@@ -35,7 +53,7 @@ export const JiraTasks = ({ title, value, tasks }: Props) => {
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setOnDragOver(false);
-    onTaskDrop(value);
+    onTaskDrop(status);
   };
 
   return (
@@ -66,7 +84,7 @@ export const JiraTasks = ({ title, value, tasks }: Props) => {
         </div>
 
         <button onClick={handleAddTask}>
-          <IoEllipsisHorizontalOutline />
+          <IoAdd />
         </button>
 
       </div>
